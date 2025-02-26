@@ -40,6 +40,8 @@ protected:
 
 	Vector2 selectedBoardCoord;
 
+	Text* countText = nullptr;
+
 	std::string puzzleString_01 = "늑대와 병아리 각 3마리를 모두 강 건너편으로 옮기고 싶다. 그런데 뗏목을 쓰려면 다음과 같은 조건이 있다.";
 	std::string puzzleString_02 = "* 뗏목에는 한 번에 2마리만 탈 수 있다.";
 	std::string puzzleString_03 = "* 1마리 이상 타고 있어야 움직인다.";
