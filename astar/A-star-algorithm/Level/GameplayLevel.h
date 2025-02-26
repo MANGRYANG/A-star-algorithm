@@ -37,8 +37,6 @@ protected:
 
 	void ResetGame();
 
-	void A_Star_Solution();
-
 protected:
 	POINT mousePos;
 
@@ -68,10 +66,13 @@ protected:
 	int count = 0;
 
 	bool isGameOver = false;
+	bool isWin = false;
 	bool isRenderedGameOverMessage = false;
 
 protected:
 	// For A-Star Algorithm
+	int puzzle_least_count = 0;
+	int last_least_count = 0;
 	int least_count = 0;
 	std::vector<std::pair<int, int>> moves = {};
 
@@ -102,6 +103,8 @@ protected:
 		{0, 2}, // Move two of chicks
 		{1, 1}  // Move one of wolves and one of chicks
 	};
+
+	void A_Star_Solution(int currentWolf, int currentChick, bool isCurrentRaftLeft);
 
 	static int Heuristic(int wolf, int chick);
 
