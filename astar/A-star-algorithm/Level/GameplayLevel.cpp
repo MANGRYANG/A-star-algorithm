@@ -3,7 +3,7 @@
 GameplayLevel::GameplayLevel()
     : mousePos{ 0, 0 }, consoleRect{ 0, 0, 0, 0 },
     leftAnimals{ true, true, true, true, true, true }, rightAnimals{ false, false, false, false, false, false },
-    leftRaftAnimal{ -1, -1 }, rightRaftAnimal{ -1, -1 }
+    RaftAnimal{ -1, -1 }, isRaftLeft(true)
 {
     AddActor(new Text(puzzleString_01.c_str(), Vector2(2, 1)));
     AddActor(new Text(puzzleString_02.c_str(), Vector2(4, 3)));
@@ -18,6 +18,29 @@ GameplayLevel::GameplayLevel()
     AddActor(new Chick(Vector2(3, 26)));
     AddActor(new Chick(Vector2(11, 26)));
     AddActor(new Chick(Vector2(19, 26)));
+
+    // Add raft actor in left side
+    if (isRaftLeft)
+    {
+        int raft_length = 26;
+        for (int idx = 0; idx < 9; ++idx)
+        {
+            if (idx == 4)
+            {
+                AddActor(new Raft(5, Vector2(36, 26)));
+                AddActor(new Raft(6, Vector2(48, 26)));
+                AddActor(new Raft(5, Vector2(61, 26)));
+
+                AddActor(new Raft(7, Vector2(41, 26)));
+                AddActor(new Raft(7, Vector2(54, 26)));
+
+                raft_length++;
+                continue;
+            }
+            AddActor(new Raft(raft_length, Vector2(44 - (2 * idx), 22 + idx)));
+            raft_length++;
+        }
+    }
 
     ProcessAddedAndDestroyedActor(); 
 }
@@ -71,23 +94,47 @@ void GameplayLevel::Update(float deltaTime)
 
                                 leftAnimals[idx] = false;
 
-                                if (leftRaftAnimal[0] == -1)
+                                if (RaftAnimal[0] == -1)
                                 {
-                                    leftRaftAnimal[0] = 0;
+                                    RaftAnimal[0] = 0;
 
                                     if (tempWolfActor != nullptr)
                                     {
-                                        tempWolfActor->SetPosition(Vector2(41, 26));
+                                        Raft* tempRaftActor = nullptr;
+
+                                        for (Actor* actor : actors)
+                                        {
+                                            tempRaftActor = dynamic_cast<Raft*>(actor);
+                                            if (tempRaftActor != nullptr &&
+                                                tempRaftActor->GetPosition() == Vector2(41, 26))
+                                            {
+                                                tempRaftActor->Destroy();
+                                            }
+                                        }
+
+                                        tempWolfActor->SetPosition(Vector2(41, 26));                                     
                                     }
                                 }
 
                                 else
                                 {
-                                    leftRaftAnimal[1] = 0;
+                                    RaftAnimal[1] = 0;
 
                                     if (tempWolfActor != nullptr)
                                     {
-                                        tempWolfActor->SetPosition(Vector2(54, 26));
+                                        Raft* tempRaftActor = nullptr;
+
+                                        for (Actor* actor : actors)
+                                        {
+                                            tempRaftActor = dynamic_cast<Raft*>(actor);
+                                            if (tempRaftActor != nullptr &&
+                                                tempRaftActor->GetPosition() == Vector2(54, 26))
+                                            {
+                                                tempRaftActor->Destroy();
+                                            }
+                                        }
+
+                                        tempWolfActor->SetPosition(Vector2(54, 26));                                        
                                     }
                                 }
                             }
@@ -111,22 +158,46 @@ void GameplayLevel::Update(float deltaTime)
 
                                 leftAnimals[idx + 3] = false;
 
-                                if (leftRaftAnimal[0] == -1)
+                                if (RaftAnimal[0] == -1)
                                 {
-                                    leftRaftAnimal[0] = 0;
+                                    RaftAnimal[0] = 0;
 
                                     if (tempChickActor != nullptr)
                                     {
+                                        Raft* tempRaftActor = nullptr;
+
+                                        for (Actor* actor : actors)
+                                        {
+                                            tempRaftActor = dynamic_cast<Raft*>(actor);
+                                            if (tempRaftActor != nullptr &&
+                                                tempRaftActor->GetPosition() == Vector2(41, 26))
+                                            {
+                                                tempRaftActor->Destroy();
+                                            }
+                                        }
+
                                         tempChickActor->SetPosition(Vector2(41, 26));
                                     }
                                 }
 
                                 else
                                 {
-                                    leftRaftAnimal[1] = 0;
+                                    RaftAnimal[1] = 0;
 
                                     if (tempChickActor != nullptr)
                                     {
+                                        Raft* tempRaftActor = nullptr;
+
+                                        for (Actor* actor : actors)
+                                        {
+                                            tempRaftActor = dynamic_cast<Raft*>(actor);
+                                            if (tempRaftActor != nullptr &&
+                                                tempRaftActor->GetPosition() == Vector2(54, 26))
+                                            {
+                                                tempRaftActor->Destroy();
+                                            }
+                                        }
+
                                         tempChickActor->SetPosition(Vector2(54, 26));
                                     }
                                 }
@@ -135,11 +206,11 @@ void GameplayLevel::Update(float deltaTime)
                     }
 
                     // Select animal on raft
-                    if (leftRaftAnimal[0] != -1 &&
+                    if (RaftAnimal[0] != -1 &&
                         relativeX / 8 >= 41 && relativeX / 8 <= 48 &&
                         relativeY / 17 >= 25 && relativeY / 17 <= 26)
                     {
-                        leftRaftAnimal[0] = -1;
+                        RaftAnimal[0] = -1;
 
                         Animal* tempAnimalActor = nullptr;
 
@@ -158,6 +229,7 @@ void GameplayLevel::Update(float deltaTime)
                                         {
                                             leftAnimals[idx] = true;
                                             actor->SetPosition(Vector2(3 + (idx * 8), 23));
+                                            AddActor(new Raft(7, Vector2(41, 26)));
                                             break;
                                         }
                                     }
@@ -167,6 +239,7 @@ void GameplayLevel::Update(float deltaTime)
                                         {
                                             leftAnimals[idx + 3] = true;
                                             actor->SetPosition(Vector2(3 + (idx * 8), 26));
+                                            AddActor(new Raft(7, Vector2(41, 26)));
                                             break;
                                         }
                                     }
@@ -177,11 +250,11 @@ void GameplayLevel::Update(float deltaTime)
                         }
                     }
 
-                    else if (leftRaftAnimal[1] != -1 &&
+                    else if (RaftAnimal[1] != -1 &&
                         relativeX / 8 >= 54 && relativeX / 8 <= 62 &&
                         relativeY / 17 >= 25 && relativeY / 17 <= 26)
                     {
-                        leftRaftAnimal[1] = -1;
+                        RaftAnimal[1] = -1;
 
                         Animal* tempAnimalActor = nullptr;
 
@@ -200,6 +273,7 @@ void GameplayLevel::Update(float deltaTime)
                                         {
                                             leftAnimals[idx] = true;
                                             actor->SetPosition(Vector2(3 + (idx * 8), 23));
+                                            AddActor(new Raft(7, Vector2(54, 26)));
                                             break;
                                         }
                                     }
@@ -209,6 +283,7 @@ void GameplayLevel::Update(float deltaTime)
                                         {
                                             leftAnimals[idx + 3] = true;
                                             actor->SetPosition(Vector2(3 + (idx * 8), 26));
+                                            AddActor(new Raft(7, Vector2(54, 26)));
                                             break;
                                         }
                                     } 
@@ -217,7 +292,6 @@ void GameplayLevel::Update(float deltaTime)
                             }
                         }
                     }
-
                 } 
                 ProcessAddedAndDestroyedActor();
             }
@@ -248,60 +322,12 @@ void GameplayLevel::Render()
     // Draw river-line
     Engine::Get().Render(Vector2(45, 21), "-------------------------------------------------------", Color::Cyan);
     Engine::Get().Render(Vector2(17, 35), "---------------------------------------------------------------------------------------------------------------", Color::Cyan);
-
-    if (isRaftLeft)
-    {
-        // Draw raft in left side
-        std::string raft = "**************************";
-        for (int idx = 0; idx < 9; ++idx)
-        {
-            if (idx == 4)
-            {
-                if (!isRaftEmpty())
-                {
-                    if (isRaftLeft)
-                    {
-                        if (isRaftFull())
-                        {
-                            Engine::Get().Render(Vector2(36, 26), "*****", Color::Yellow);
-                            Engine::Get().Render(Vector2(48, 26), "******", Color::Yellow);
-                            Engine::Get().Render(Vector2(61, 26), "*****", Color::Yellow);
-                            raft += '*';
-                            continue;
-                        }
-                        else if (leftRaftAnimal[0] != -1)
-                        {
-                            Engine::Get().Render(Vector2(36, 26), "*****", Color::Yellow);
-                            Engine::Get().Render(Vector2(48, 26), "******************", Color::Yellow);
-                            raft += '*';
-                            continue;
-                        }
-                        else
-                        {
-                            Engine::Get().Render(Vector2(36, 26), "******************", Color::Yellow);
-                            Engine::Get().Render(Vector2(61, 26), "*****", Color::Yellow);
-                            raft += '*';
-                            continue;
-                        }
-                    }
-                    
-                }
-            }
-            Engine::Get().Render(Vector2(44 - (2 * idx), 22 + idx), raft.c_str(), Color::Yellow);
-            raft += '*';
-        }
-    }
 }
 
 bool GameplayLevel::isRaftEmpty() const
 {
     if (isRaftLeft &&
-        leftRaftAnimal[0] == -1 && leftRaftAnimal[1] == -1)
-    {
-        return true;
-    }
-    else if (!isRaftLeft &&
-        rightRaftAnimal[0] == -1 && rightRaftAnimal[1] == -1)
+        RaftAnimal[0] == -1 && RaftAnimal[1] == -1)
     {
         return true;
     }
@@ -312,13 +338,7 @@ bool GameplayLevel::isRaftEmpty() const
 bool GameplayLevel::isRaftFull() const
 {
     if (isRaftLeft &&
-        leftRaftAnimal[0] != -1 && leftRaftAnimal[1] != -1)
-    {
-        return true;
-    }
-
-    else if (!isRaftLeft &&
-        rightRaftAnimal[0] != -1 && rightRaftAnimal[1] != -1)
+        RaftAnimal[0] != -1 && RaftAnimal[1] != -1)
     {
         return true;
     }

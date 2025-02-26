@@ -5,6 +5,7 @@
 #include "Level/Level.h"
 
 #include "Actor/Text/Text.h"
+#include "Actor/Raft/Raft.h"
 #include "Actor/Animal/Wolf.h"
 #include "Actor/Animal/Chick.h"
 
@@ -45,12 +46,12 @@ protected:
 	std::string puzzleString_04 = "* 양쪽 기슭 모두 늑대가 병아리보다 많아지면 병아리는 잡아먹히고 만다.";
 	std::string puzzleString_05 = "횟수에 제한은 없으나 최단 횟수는 11회";
 
-	bool isRaftLeft = true;
+	bool isRaftLeft;
+	bool isRaftMoving = false;
 
 	bool leftAnimals[6];
 	bool rightAnimals[6];
 
-	int leftRaftAnimal[2];
-	int rightRaftAnimal[2];
+	int RaftAnimal[2];
 
 };
