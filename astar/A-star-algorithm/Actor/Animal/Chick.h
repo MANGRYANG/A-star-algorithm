@@ -1,11 +1,11 @@
 #pragma once
 
 #include "Engine/Engine.h"
-#include "Actor/DrawableActor.h"
+#include "Animal.h"
 
-class Chick : public DrawableActor
+class Chick : public Animal
 {
-	RTTI_DECLARATIONS(Chick, DrawableActor);
+	RTTI_DECLARATIONS(Chick, Animal);
 
 	Chick(Vector2 location);
 

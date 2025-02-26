@@ -11,9 +11,9 @@ GameplayLevel::GameplayLevel()
     AddActor(new Text(puzzleString_04.c_str(), Vector2(4, 5)));
     AddActor(new Text(puzzleString_05.c_str(), Vector2(2, 7)));
 
-    AddActor(new Wolf(Vector2(4, 23)));
-    AddActor(new Wolf(Vector2(12, 23)));
-    AddActor(new Wolf(Vector2(20, 23)));
+    AddActor(new Wolf(Vector2(3, 23)));
+    AddActor(new Wolf(Vector2(11, 23)));
+    AddActor(new Wolf(Vector2(19, 23)));
 
     AddActor(new Chick(Vector2(3, 26)));
     AddActor(new Chick(Vector2(11, 26)));
@@ -48,17 +48,13 @@ void GameplayLevel::Update(float deltaTime)
                 // Raft : Left side
                 if (isRaftLeft)
                 {
-                    if (isRaftFull())
-                    {
-
-                    }
-                    else
+                    if(!isRaftFull())
                     {
                         for (int idx = 0; idx < 3; ++idx)
                         {
                             // Wolf selected
                             if (leftAnimals[idx] &&
-                                relativeX / 8 >= 4 + (idx * 8) && relativeX / 8 <= 9 + (idx * 8) &&
+                                relativeX / 8 >= 3 + (idx * 8) && relativeX / 8 <= 9 + (idx * 8) &&
                                 relativeY / 17 >= 22 && relativeY / 17 <= 23)
                             {
                                 Wolf* tempWolfActor = nullptr;
@@ -67,7 +63,7 @@ void GameplayLevel::Update(float deltaTime)
                                 {
                                     tempWolfActor = dynamic_cast<Wolf*>(actor);
                                     if (tempWolfActor != nullptr &&
-                                        actor->GetPosition() == Vector2(4 + (8 * idx), 23))
+                                        actor->GetPosition() == Vector2(3 + (8 * idx), 23))
                                     {
                                         break;
                                     }
@@ -75,24 +71,23 @@ void GameplayLevel::Update(float deltaTime)
 
                                 leftAnimals[idx] = false;
 
-                                // Raft is empty
                                 if (leftRaftAnimal[0] == -1)
                                 {
                                     leftRaftAnimal[0] = 0;
-                                    
+
                                     if (tempWolfActor != nullptr)
                                     {
-                                        tempWolfActor->SetPosition(Vector2(42, 26));
+                                        tempWolfActor->SetPosition(Vector2(41, 26));
                                     }
                                 }
-                                // One animal exists on Raft
+
                                 else
                                 {
                                     leftRaftAnimal[1] = 0;
 
                                     if (tempWolfActor != nullptr)
                                     {
-                                        tempWolfActor->SetPosition(Vector2(55, 26));
+                                        tempWolfActor->SetPosition(Vector2(54, 26));
                                     }
                                 }
                             }
@@ -116,20 +111,19 @@ void GameplayLevel::Update(float deltaTime)
 
                                 leftAnimals[idx + 3] = false;
 
-                                // Raft is empty
                                 if (leftRaftAnimal[0] == -1)
                                 {
-                                    leftRaftAnimal[0] = 1;
+                                    leftRaftAnimal[0] = 0;
 
                                     if (tempChickActor != nullptr)
                                     {
                                         tempChickActor->SetPosition(Vector2(41, 26));
                                     }
                                 }
-                                // One animal exists on Raft
+
                                 else
                                 {
-                                    leftRaftAnimal[1] = 1;
+                                    leftRaftAnimal[1] = 0;
 
                                     if (tempChickActor != nullptr)
                                     {
@@ -138,9 +132,94 @@ void GameplayLevel::Update(float deltaTime)
                                 }
                             }
                         }
-                        ProcessAddedAndDestroyedActor();
                     }
-                }        
+
+                    // Select animal on raft
+                    if (leftRaftAnimal[0] != -1 &&
+                        relativeX / 8 >= 41 && relativeX / 8 <= 48 &&
+                        relativeY / 17 >= 25 && relativeY / 17 <= 26)
+                    {
+                        leftRaftAnimal[0] = -1;
+
+                        Animal* tempAnimalActor = nullptr;
+
+                        for (Actor* actor : actors)
+                        {
+                            tempAnimalActor = dynamic_cast<Animal*>(actor);
+
+                            if (tempAnimalActor != nullptr &&
+                                actor->GetPosition() == Vector2(41, 26))
+                            {
+                                for (int idx = 0; idx < 3; ++idx)
+                                {
+                                    if (dynamic_cast<Wolf*>(tempAnimalActor) != nullptr)
+                                    {
+                                        if (!leftAnimals[idx])
+                                        {
+                                            leftAnimals[idx] = true;
+                                            actor->SetPosition(Vector2(3 + (idx * 8), 23));
+                                            break;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (!leftAnimals[idx + 3])
+                                        {
+                                            leftAnimals[idx + 3] = true;
+                                            actor->SetPosition(Vector2(3 + (idx * 8), 26));
+                                            break;
+                                        }
+                                    }
+                                    
+                                }
+                                break;
+                            }
+                        }
+                    }
+
+                    else if (leftRaftAnimal[1] != -1 &&
+                        relativeX / 8 >= 54 && relativeX / 8 <= 62 &&
+                        relativeY / 17 >= 25 && relativeY / 17 <= 26)
+                    {
+                        leftRaftAnimal[1] = -1;
+
+                        Animal* tempAnimalActor = nullptr;
+
+                        for (Actor* actor : actors)
+                        {
+                            tempAnimalActor = dynamic_cast<Animal*>(actor);
+
+                            if (tempAnimalActor != nullptr &&
+                                actor->GetPosition() == Vector2(54, 26))
+                            {
+                                for (int idx = 0; idx < 3; ++idx)
+                                {
+                                    if (dynamic_cast<Wolf*>(tempAnimalActor) != nullptr)
+                                    {
+                                        if (!leftAnimals[idx])
+                                        {
+                                            leftAnimals[idx] = true;
+                                            actor->SetPosition(Vector2(3 + (idx * 8), 23));
+                                            break;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (!leftAnimals[idx + 3])
+                                        {
+                                            leftAnimals[idx + 3] = true;
+                                            actor->SetPosition(Vector2(3 + (idx * 8), 26));
+                                            break;
+                                        }
+                                    } 
+                                }
+                                break;
+                            }
+                        }
+                    }
+
+                } 
+                ProcessAddedAndDestroyedActor();
             }
         }
     }
@@ -173,28 +252,39 @@ void GameplayLevel::Render()
     if (isRaftLeft)
     {
         // Draw raft in left side
-        std::string raft = "***************************";
+        std::string raft = "**************************";
         for (int idx = 0; idx < 9; ++idx)
         {
             if (idx == 4)
             {
-                if (leftRaftAnimal[0] != -1)
+                if (!isRaftEmpty())
                 {
-                    if (leftRaftAnimal[1] != -1)
+                    if (isRaftLeft)
                     {
-                        Engine::Get().Render(Vector2(36, 26), "*****", Color::Yellow);
-                        Engine::Get().Render(Vector2(48, 26), "******", Color::Yellow);
-                        Engine::Get().Render(Vector2(62, 26), "*****", Color::Yellow);
-                        raft += '*';
-                        continue;
+                        if (isRaftFull())
+                        {
+                            Engine::Get().Render(Vector2(36, 26), "*****", Color::Yellow);
+                            Engine::Get().Render(Vector2(48, 26), "******", Color::Yellow);
+                            Engine::Get().Render(Vector2(61, 26), "*****", Color::Yellow);
+                            raft += '*';
+                            continue;
+                        }
+                        else if (leftRaftAnimal[0] != -1)
+                        {
+                            Engine::Get().Render(Vector2(36, 26), "*****", Color::Yellow);
+                            Engine::Get().Render(Vector2(48, 26), "******************", Color::Yellow);
+                            raft += '*';
+                            continue;
+                        }
+                        else
+                        {
+                            Engine::Get().Render(Vector2(36, 26), "******************", Color::Yellow);
+                            Engine::Get().Render(Vector2(61, 26), "*****", Color::Yellow);
+                            raft += '*';
+                            continue;
+                        }
                     }
-                    else
-                    {
-                        Engine::Get().Render(Vector2(36, 26), "*****", Color::Yellow);
-                        Engine::Get().Render(Vector2(48, 26), "*******************", Color::Yellow);
-                        raft += '*';
-                        continue;
-                    }
+                    
                 }
             }
             Engine::Get().Render(Vector2(44 - (2 * idx), 22 + idx), raft.c_str(), Color::Yellow);
@@ -203,15 +293,32 @@ void GameplayLevel::Render()
     }
 }
 
-bool GameplayLevel::isRaftFull()
+bool GameplayLevel::isRaftEmpty() const
 {
-    if (isRaftLeft && leftRaftAnimal[1] != -1)
+    if (isRaftLeft &&
+        leftRaftAnimal[0] == -1 && leftRaftAnimal[1] == -1)
     {
         return true;
-        
+    }
+    else if (!isRaftLeft &&
+        rightRaftAnimal[0] == -1 && rightRaftAnimal[1] == -1)
+    {
+        return true;
     }
 
-    else if (!isRaftLeft && rightRaftAnimal[1] != -1)
+    return false;
+}
+
+bool GameplayLevel::isRaftFull() const
+{
+    if (isRaftLeft &&
+        leftRaftAnimal[0] != -1 && leftRaftAnimal[1] != -1)
+    {
+        return true;
+    }
+
+    else if (!isRaftLeft &&
+        rightRaftAnimal[0] != -1 && rightRaftAnimal[1] != -1)
     {
         return true;
     }

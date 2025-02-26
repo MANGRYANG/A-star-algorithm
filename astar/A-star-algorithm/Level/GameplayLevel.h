@@ -28,7 +28,8 @@ public:
 	virtual void Render() override;
 
 protected:
-	bool isRaftFull();
+	bool isRaftEmpty() const;
+	bool isRaftFull() const;
 
 protected:
 	POINT mousePos;

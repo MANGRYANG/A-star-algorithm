@@ -1,10 +1,8 @@
 #include "Chick.h"
 
-Chick::Chick(Vector2 location) : Super(" Chick ", location)
+Chick::Chick(Vector2 location)
+	: Super(" Chick ", location, Color::Bright_Yellow)
 {
-	this->position.xpos = location.xpos;
-	this->position.ypos = location.ypos;
-	SetColor(Color::Bright_Yellow);
 }
 
 Chick::~Chick()
