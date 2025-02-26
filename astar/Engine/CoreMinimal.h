@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "PCH/PCH.h"
 
@@ -24,6 +24,8 @@ enum class Color : unsigned short
 	Magenta = Red + Blue,
 	Cyan = Green + Blue,
 	White = Red + Green + Blue,
+	Grey = FOREGROUND_INTENSITY,
+	Bright_Yellow = Yellow | FOREGROUND_INTENSITY,
 };
 
 inline void SetColor(Color color)

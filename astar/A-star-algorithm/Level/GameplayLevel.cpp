@@ -9,7 +9,15 @@ GameplayLevel::GameplayLevel()
     AddActor(new Text(puzzleString_04.c_str(), Vector2(4, 5)));
     AddActor(new Text(puzzleString_05.c_str(), Vector2(2, 7)));
 
-    ProcessAddedAndDestroyedActor();
+    AddActor(new Wolf(Vector2(4, 23)));
+    AddActor(new Wolf(Vector2(12, 23)));
+    AddActor(new Wolf(Vector2(20, 23)));
+
+    AddActor(new Chick(Vector2(3, 26)));
+    AddActor(new Chick(Vector2(11, 26)));
+    AddActor(new Chick(Vector2(19, 26)));
+
+    ProcessAddedAndDestroyedActor(); 
 }
 
 GameplayLevel::~GameplayLevel()
@@ -52,8 +60,8 @@ void GameplayLevel::Render()
     Engine::Get().Render(Vector2(100, 20), "____________________________________________", Color::Green);
     Engine::Get().Render(Vector2(128, 35), "|________________", Color::Green);
 
-    std::string left_slash = "_\\";
-    std::string right_slash = "\\_";
+    std::string left_slash = "_Y";
+    std::string right_slash = "Y_";
 
     for (int lineNumber = 34; lineNumber > 20; --lineNumber)
     {
@@ -61,6 +69,18 @@ void GameplayLevel::Render()
         Engine::Get().Render(Vector2(100 + 2 * (lineNumber - 21), lineNumber), right_slash.c_str(), Color::Green);
     }
     
+    // Draw river-line
     Engine::Get().Render(Vector2(45, 21), "-------------------------------------------------------", Color::Cyan);
     Engine::Get().Render(Vector2(17, 35), "---------------------------------------------------------------------------------------------------------------", Color::Cyan);
+
+    // Draw raft in left side
+    std::string raft = "***************************";
+    for (int idx = 0; idx < 9; ++idx)
+    {
+        Engine::Get().Render(Vector2(44 - (2 * idx), 22 + idx), raft.c_str(), Color::Yellow);
+        raft += '*';
+    }
+
+
+
 }

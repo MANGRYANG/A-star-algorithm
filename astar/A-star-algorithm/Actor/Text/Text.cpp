@@ -1,6 +1,4 @@
 #include "Text.h"
-#include "Engine/Engine.h"
-#include "Math/Vector2.h"
 
 Text::Text(const char* textMessage, Vector2 location)
 	: Super(textMessage, location)
