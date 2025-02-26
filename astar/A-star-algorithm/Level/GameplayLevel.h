@@ -4,6 +4,7 @@
 
 #include "Level/Level.h"
 
+#include "Actor/Button/ResetButton.h"
 #include "Actor/Text/Text.h"
 #include "Actor/Raft/Raft.h"
 #include "Actor/Animal/Wolf.h"
@@ -31,6 +32,8 @@ public:
 protected:
 	bool isRaftEmpty() const;
 	bool isRaftFull() const;
+
+	void ResetGame();
 
 protected:
 	POINT mousePos;
@@ -61,5 +64,5 @@ protected:
 	int count = 0;
 
 	bool isGameOver = false;
-
+	bool isRenderedGameOverMessage = false;
 };
