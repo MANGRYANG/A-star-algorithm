@@ -60,4 +60,6 @@ protected:
 
 	int count = 0;
 
+	bool isGameOver = false;
+
 };
