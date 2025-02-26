@@ -28,6 +28,10 @@ public:
 	virtual void Render() override;
 
 protected:
+	bool isRaftEmpty() const;
+	bool isRaftFull() const;
+
+protected:
 	POINT mousePos;
 
 	HWND consoleWindow = GetConsoleWindow();
@@ -42,4 +46,11 @@ protected:
 	std::string puzzleString_05 = "횟수에 제한은 없으나 최단 횟수는 11회";
 
 	bool isRaftLeft = true;
+
+	bool leftAnimals[6];
+	bool rightAnimals[6];
+
+	int leftRaftAnimal[2];
+	int rightRaftAnimal[2];
+
 };

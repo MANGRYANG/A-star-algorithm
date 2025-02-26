@@ -167,6 +167,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Actor\Animal\Animal.cpp" />
     <ClCompile Include="Actor\Animal\Chick.cpp" />
     <ClCompile Include="Actor\Animal\Wolf.cpp" />
     <ClCompile Include="Actor\Text\Text.cpp" />
@@ -175,6 +176,7 @@
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Actor\Animal\Animal.h" />
     <ClInclude Include="Actor\Animal\Chick.h" />
     <ClInclude Include="Actor\Animal\Wolf.h" />
     <ClInclude Include="Actor\Text\Text.h" />
