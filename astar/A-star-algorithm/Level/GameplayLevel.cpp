@@ -15,6 +15,8 @@ GameplayLevel::GameplayLevel()
     countText = new Text("0", Vector2(9, 12), Color::Red);
     AddActor(countText);
 
+    AddActor(new ResetButton(Vector2(136, 1)));
+
     AddActor(new Wolf(Vector2(3, 23)));
     AddActor(new Wolf(Vector2(11, 23)));
     AddActor(new Wolf(Vector2(19, 23)));
@@ -24,26 +26,23 @@ GameplayLevel::GameplayLevel()
     AddActor(new Chick(Vector2(19, 26)));
 
     // Add raft actor in left side
-    if (isRaftLeft)
+    int raft_length = 26;
+    for (int idx = 0; idx < 9; ++idx)
     {
-        int raft_length = 26;
-        for (int idx = 0; idx < 9; ++idx)
+        if (idx == 4)
         {
-            if (idx == 4)
-            {
-                AddActor(new Raft(5, Vector2(36, 26)));
-                AddActor(new Raft(6, Vector2(48, 26)));
-                AddActor(new Raft(5, Vector2(61, 26)));
+            AddActor(new Raft(5, Vector2(36, 26)));
+            AddActor(new Raft(6, Vector2(48, 26)));
+            AddActor(new Raft(5, Vector2(61, 26)));
 
-                AddActor(new Raft(7, Vector2(41, 26)));
-                AddActor(new Raft(7, Vector2(54, 26)));
+            AddActor(new Raft(7, Vector2(41, 26)));
+            AddActor(new Raft(7, Vector2(54, 26)));
 
-                ++raft_length;
-                continue;
-            }
-            AddActor(new Raft(raft_length, Vector2(44 - (2 * idx), 22 + idx)));
             ++raft_length;
+            continue;
         }
+        AddActor(new Raft(raft_length, Vector2(44 - (2 * idx), 22 + idx)));
+        ++raft_length;
     }
 
     ProcessAddedAndDestroyedActor();
@@ -55,6 +54,7 @@ GameplayLevel::~GameplayLevel()
 
 void GameplayLevel::Update(float deltaTime)
 {
+    RESET:
     Super::Update(deltaTime);
 
     GetWindowRect(consoleWindow, &consoleRect);
@@ -62,7 +62,34 @@ void GameplayLevel::Update(float deltaTime)
     if (isGameOver)
     {
         // Game Over logic
-        AddActor(new Text("GAME OVER", Vector2(80, 12), Color::Red));
+        if (!isRenderedGameOverMessage)
+        {
+            AddActor(new Text("GAME OVER", Vector2(80, 12), Color::Red));
+        }
+        
+        if (GetAsyncKeyState(VK_LBUTTON) & 1)
+        {
+            if (GetCursorPos(&mousePos))
+            {
+                int titleBarHeight = 30;
+                int consoleSideWidth = 7;
+                int relativeX = mousePos.x - consoleRect.left - consoleSideWidth;
+                int relativeY = mousePos.y - consoleRect.top - titleBarHeight;
+
+
+                if (relativeX >= 0 && relativeX < (consoleRect.right - consoleRect.left) &&
+                    relativeY >= 0 && relativeY < (consoleRect.bottom - consoleRect.top - titleBarHeight))
+                {
+                    if (relativeX / 8 >= 136 && relativeX / 8 <= 141 &&
+                        relativeY / 17 >= 0 && relativeY / 17 <= 1)
+                    {
+                        ResetGame();
+                    }
+                }
+            }
+        }
+
+        isRenderedGameOverMessage = true;
     }
 
     else
@@ -80,6 +107,13 @@ void GameplayLevel::Update(float deltaTime)
                 if (relativeX >= 0 && relativeX < (consoleRect.right - consoleRect.left) &&
                     relativeY >= 0 && relativeY < (consoleRect.bottom - consoleRect.top - titleBarHeight))
                 {
+                    // Clicked RESET Button
+                    if (relativeX / 8 >= 136 && relativeX / 8 <= 141 &&
+                        relativeY / 17 >= 0 && relativeY / 17 <= 1)
+                    {
+                        ResetGame();
+                    }
+                    
                     // Raft : Left side
                     if (isRaftLeft)
                     {
@@ -1032,4 +1066,67 @@ bool GameplayLevel::isRaftFull() const
     }
 
     return false;
+}
+
+void GameplayLevel::ResetGame()
+{
+    for (Actor* actor : actors)
+    {
+        actor->Destroy();
+    }
+
+    AddActor(new Text(puzzleString_01.c_str(), Vector2(2, 1)));
+    AddActor(new Text(puzzleString_02.c_str(), Vector2(4, 3)));
+    AddActor(new Text(puzzleString_03.c_str(), Vector2(4, 4)));
+    AddActor(new Text(puzzleString_04.c_str(), Vector2(4, 5)));
+    AddActor(new Text(puzzleString_05.c_str(), Vector2(2, 7)));
+
+    AddActor(new Text("COUNT:", Vector2(2, 12), Color::Red));
+    countText = new Text("0", Vector2(9, 12), Color::Red);
+    AddActor(countText);
+
+    AddActor(new ResetButton(Vector2(136, 1)));
+
+    AddActor(new Wolf(Vector2(3, 23)));
+    AddActor(new Wolf(Vector2(11, 23)));
+    AddActor(new Wolf(Vector2(19, 23)));
+
+    AddActor(new Chick(Vector2(3, 26)));
+    AddActor(new Chick(Vector2(11, 26)));
+    AddActor(new Chick(Vector2(19, 26)));
+
+    // Add raft actor in left side
+    int raft_length = 26;
+    for (int idx = 0; idx < 9; ++idx)
+    {
+        if (idx == 4)
+        {
+            AddActor(new Raft(5, Vector2(36, 26)));
+            AddActor(new Raft(6, Vector2(48, 26)));
+            AddActor(new Raft(5, Vector2(61, 26)));
+
+            AddActor(new Raft(7, Vector2(41, 26)));
+            AddActor(new Raft(7, Vector2(54, 26)));
+
+            ++raft_length;
+            continue;
+        }
+        AddActor(new Raft(raft_length, Vector2(44 - (2 * idx), 22 + idx)));
+        ++raft_length;
+    }
+
+    isGameOver = false;
+    isRaftLeft = true;
+    count = 0;
+    for (int idx = 0; idx < 6; ++idx)
+    {
+        leftAnimals[idx] = true;
+        rightAnimals[idx] = false;
+    }
+    for (int idx = 0; idx < 2; ++idx)
+    {
+        RaftAnimal[idx] = -1;
+    }
+
+    ProcessAddedAndDestroyedActor();
 }

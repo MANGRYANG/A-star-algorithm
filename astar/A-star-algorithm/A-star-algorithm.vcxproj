@@ -170,6 +170,8 @@
     <ClCompile Include="Actor\Animal\Animal.cpp" />
     <ClCompile Include="Actor\Animal\Chick.cpp" />
     <ClCompile Include="Actor\Animal\Wolf.cpp" />
+    <ClCompile Include="Actor\Button\Button.cpp" />
+    <ClCompile Include="Actor\Button\ResetButton.cpp" />
     <ClCompile Include="Actor\Raft\Raft.cpp" />
     <ClCompile Include="Actor\Text\Text.cpp" />
     <ClCompile Include="Game\Game.cpp" />
@@ -181,6 +183,8 @@
     <ClInclude Include="Actor\Animal\Chick.h" />
     <ClInclude Include="Actor\Animal\Wolf.h" />
     <ClInclude Include="Actor\Button.h" />
+    <ClInclude Include="Actor\Button\Button.h" />
+    <ClInclude Include="Actor\Button\ResetButton.h" />
     <ClInclude Include="Actor\Raft\Raft.h" />
     <ClInclude Include="Actor\Text\Text.h" />
     <ClInclude Include="Game\Game.h" />
