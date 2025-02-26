@@ -11,6 +11,23 @@ GameplayLevel::GameplayLevel()
     AddActor(new Text(puzzleString_04.c_str(), Vector2(4, 5)));
     AddActor(new Text(puzzleString_05.c_str(), Vector2(2, 7)));
 
+    A_Star_Solution();
+
+    if(least_count == 0)
+    {
+        AddActor(new Text(std::to_string(least_count).c_str(), Vector2(35, 7)));
+        AddActor(new Text("회", Vector2(36, 7)));
+    }
+    else if (least_count == -1)
+    {
+        AddActor(new Text("무한대", Vector2(35, 7)));
+    }
+    else
+    {
+        AddActor(new Text(std::to_string(least_count).c_str(), Vector2(35, 7)));
+        AddActor(new Text("회", Vector2(36 + (int)log10(least_count), 7)));
+    }
+
     AddActor(new Text("COUNT:", Vector2(2, 12), Color::Red));
     countText = new Text("0", Vector2(9, 12), Color::Red);
     AddActor(countText);
@@ -675,7 +692,7 @@ void GameplayLevel::Update(float deltaTime)
             {
                 if (movingIndex >= 16 + (idx * 8) && movingIndex <= 23 + (idx * 8))
                 {
-                    Sleep(0.1);
+                    //Sleep(1);
                     int slideIndex = movingIndex - 16 - (idx * 8);
                     for (Actor* actor : actors)
                     {
@@ -1129,4 +1146,83 @@ void GameplayLevel::ResetGame()
     }
 
     ProcessAddedAndDestroyedActor();
+}
+
+// Function using the A-star algorithm to find the optimal movement history and number of movements
+void GameplayLevel::A_Star_Solution()
+{
+    std::priority_queue<State, std::vector<State>, std::greater<State>> pq;
+    std::set<std::tuple<int, int, char>> visited;
+
+    // Start state
+    State start = { 3, 3, true, 0, {} };
+    
+    // Target state
+    State target = { 0, 0, false, 0, {} };
+
+    pq.push(start);
+
+    while (!pq.empty()) {
+        // Getting the best status out of the priority queue(pq)
+        State current = pq.top();
+        pq.pop();
+
+        // Check if the element has been visited before
+        if (visited.count({ current.wolf, current.chick, current.isRaftLeft }))
+        {
+            continue;
+        }
+        // Case where the element has never been visited
+        visited.insert({ current.wolf, current.chick, current.isRaftLeft });
+
+        // Reaching the goal
+        if (current.wolf == target.wolf && current.chick == target.chick && current.isRaftLeft == target.isRaftLeft) {
+            least_count = current.cost;
+            moves = current.move_history;
+            return;
+        }
+
+        // Explore possible movements
+        for (auto& move : moveAnimals) 
+        {
+            // Number of Wolves Updated
+            int newWolf = current.isRaftLeft ? (current.wolf - move.first) : (current.wolf + move.first);
+            // Number of Chicks Updated
+            int newChick = current.isRaftLeft ? (current.chick - move.second) : (current.chick + move.second);
+            bool newRaft = !current.isRaftLeft;
+
+            if (newWolf >= 0 && newWolf <= 3 && newChick >= 0 && newChick <= 3 && isValidState(newWolf, newChick)) {
+                State next = { newWolf, newChick, newRaft, current.cost + 1, current.move_history };
+                next.move_history.push_back(move);
+                pq.push(next);
+            }
+        }
+    }
+
+    least_count = -1;
+    moves = {};
+}
+
+// Using the sum of the number of wolves and chicks left as a heuristic function
+// The greater the number of wolves and chicks remaining, the more times they have to move
+// The smaller the number of wolves and chicks remaining on the left side, the closer they are to the target status
+int GameplayLevel::Heuristic(int wolf, int chick) {
+    return wolf + chick;
+}
+
+// Function to verify that current state is in a valid state
+bool GameplayLevel::isValidState(int wolf, int chick) {
+    // Case where the number of wolves left on the left side is greater than the number of chicks left on the same side
+    if (wolf > chick && chick > 0)
+    {
+        return false;
+    }
+
+    // Case where the number of wolves left on the right side is greater than the number of chicks left on the same side
+    if ((3 - wolf) > (3 - chick) && (3 - chick) > 0) 
+    {
+        return false;
+    }
+
+    return true;
 }
