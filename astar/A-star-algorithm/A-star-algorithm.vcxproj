@@ -169,7 +169,6 @@
   <ItemGroup>
     <ClCompile Include="Actor\Animal\Chick.cpp" />
     <ClCompile Include="Actor\Animal\Wolf.cpp" />
-    <ClCompile Include="Actor\Raft\raft.cpp" />
     <ClCompile Include="Actor\Text\Text.cpp" />
     <ClCompile Include="Game\Game.cpp" />
     <ClCompile Include="Level\GameplayLevel.cpp" />
@@ -178,7 +177,6 @@
   <ItemGroup>
     <ClInclude Include="Actor\Animal\Chick.h" />
     <ClInclude Include="Actor\Animal\Wolf.h" />
-    <ClInclude Include="Actor\Raft\raft.h" />
     <ClInclude Include="Actor\Text\Text.h" />
     <ClInclude Include="Game\Game.h" />
     <ClInclude Include="Level\GameplayLevel.h" />
