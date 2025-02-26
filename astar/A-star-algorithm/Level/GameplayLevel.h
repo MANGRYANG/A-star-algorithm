@@ -54,4 +54,8 @@ protected:
 
 	int RaftAnimal[2];
 
+	int movingIndex = 0;
+
+	int count = 0;
+
 };

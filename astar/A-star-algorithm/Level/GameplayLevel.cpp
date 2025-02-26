@@ -34,15 +34,15 @@ GameplayLevel::GameplayLevel()
                 AddActor(new Raft(7, Vector2(41, 26)));
                 AddActor(new Raft(7, Vector2(54, 26)));
 
-                raft_length++;
+                ++raft_length;
                 continue;
             }
             AddActor(new Raft(raft_length, Vector2(44 - (2 * idx), 22 + idx)));
-            raft_length++;
+            ++raft_length;
         }
     }
 
-    ProcessAddedAndDestroyedActor(); 
+    ProcessAddedAndDestroyedActor();
 }
 
 GameplayLevel::~GameplayLevel()
@@ -63,11 +63,35 @@ void GameplayLevel::Update(float deltaTime)
             int consoleSideWidth = 7;
             int relativeX = mousePos.x - consoleRect.left - consoleSideWidth;
             int relativeY = mousePos.y - consoleRect.top - titleBarHeight;
-            
+
 
             if (relativeX >= 0 && relativeX < (consoleRect.right - consoleRect.left) &&
                 relativeY >= 0 && relativeY < (consoleRect.bottom - consoleRect.top - titleBarHeight))
             {
+                // Raft : Left side
+                if (isRaftLeft)
+                {
+                    // Move Raft (Left -->> Right) Animation
+                    for (int idx = 0; idx < 9; ++idx)
+                    {
+                        if (relativeX / 8 >= 43 - (idx * 2) && relativeX / 8 <= 70 - idx &&
+                            relativeY / 17 >= 21 + idx && relativeY / 17 < 22 + idx
+                            && !isRaftEmpty())
+                        {
+                            if (!(RaftAnimal[0] != -1 &&
+                                relativeX / 8 >= 41 && relativeX / 8 <= 48 &&
+                                relativeY / 17 >= 25 && relativeY / 17 <= 26)
+                                && !(RaftAnimal[1] != -1 &&
+                                    relativeX / 8 >= 54 && relativeX / 8 <= 62 &&
+                                    relativeY / 17 >= 25 && relativeY / 17 <= 26))
+                            {
+                                isRaftMoving = true;
+                                ++count;
+                            }
+                        }
+                    }
+                }
+
                 // Raft : Left side
                 if (isRaftLeft)
                 {
@@ -160,7 +184,7 @@ void GameplayLevel::Update(float deltaTime)
 
                                 if (RaftAnimal[0] == -1)
                                 {
-                                    RaftAnimal[0] = 0;
+                                    RaftAnimal[0] = 1;
 
                                     if (tempChickActor != nullptr)
                                     {
@@ -182,7 +206,7 @@ void GameplayLevel::Update(float deltaTime)
 
                                 else
                                 {
-                                    RaftAnimal[1] = 0;
+                                    RaftAnimal[1] = 1;
 
                                     if (tempChickActor != nullptr)
                                     {
@@ -293,10 +317,198 @@ void GameplayLevel::Update(float deltaTime)
                         }
                     }
                 } 
-                ProcessAddedAndDestroyedActor();
             }
         }
     }
+
+    if (isRaftMoving)
+    {
+        Raft* tempRaftActor = nullptr;
+        Animal* tempAnimalActor = nullptr;
+
+        if (movingIndex <= 15 ||
+            (movingIndex >= 40 && movingIndex < 55))
+        {
+            Sleep(4);
+            for (Actor* actor : actors)
+            {
+                tempRaftActor = dynamic_cast<Raft*>(actor);
+                tempAnimalActor = dynamic_cast<Animal*>(actor);
+                if (tempRaftActor != nullptr)
+                {
+                    if (tempRaftActor->GetPosition().xpos >= 28 && tempRaftActor->GetPosition().xpos < 104)
+                    {
+                        tempRaftActor->SetPosition(
+                            Vector2(tempRaftActor->GetPosition().xpos + 1,
+                                tempRaftActor->GetPosition().ypos));
+                    }
+                }
+                else if (tempAnimalActor != nullptr)
+                {
+                    if (tempAnimalActor->GetPosition().xpos >= 28 && tempAnimalActor->GetPosition().xpos < 104)
+                    {
+                        tempAnimalActor->SetPosition(
+                            Vector2(tempAnimalActor->GetPosition().xpos + 1,
+                                tempAnimalActor->GetPosition().ypos));
+                    }
+                }
+            }
+        }
+
+        for (int idx = 0; idx < 3; ++idx)
+        {
+            if (movingIndex >= 16 + (idx * 8) && movingIndex <= 23 + (idx * 8))
+            {
+                Sleep(0.1);
+                int slideIndex = movingIndex - 16 - (idx * 8);
+                for (Actor* actor : actors)
+                {
+                    tempRaftActor = dynamic_cast<Raft*>(actor);
+                    tempAnimalActor = dynamic_cast<Animal*>(actor);
+                    if (tempRaftActor != nullptr)
+                    {
+                        if (tempRaftActor->GetPosition().xpos >= 28 && tempRaftActor->GetPosition().xpos < 104 &&
+                            tempRaftActor->GetPosition().ypos > 22 + slideIndex)
+                        {
+                            tempRaftActor->SetPosition(
+                                Vector2(tempRaftActor->GetPosition().xpos + 1,
+                                    tempRaftActor->GetPosition().ypos));
+                        }
+                    }
+                    else if (tempAnimalActor != nullptr)
+                    {
+                        if (tempAnimalActor->GetPosition().xpos >= 28 && tempAnimalActor->GetPosition().xpos < 104 &&
+                            tempAnimalActor->GetPosition().ypos > 22 + slideIndex)
+                        {
+                            tempAnimalActor->SetPosition(
+                                Vector2(tempAnimalActor->GetPosition().xpos + 1,
+                                    tempAnimalActor->GetPosition().ypos));
+                        }
+                    }
+                }
+            }
+        }
+
+        ++movingIndex;
+
+        if (movingIndex > 55)
+        {
+            movingIndex = 0;
+            isRaftMoving = false;
+
+            // Unload animals
+            if (RaftAnimal[0] == 0)
+            {
+                for (int idx = 0; idx < 3; ++idx)
+                {
+                    if (!rightAnimals[idx])
+                    {
+                        Wolf* tempWolfActor = nullptr;
+
+                        for (Actor* actor : actors)
+                        {
+                            tempWolfActor = dynamic_cast<Wolf*>(actor);
+                            if (tempWolfActor != nullptr &&
+                                actor->GetPosition() == Vector2(84, 26))
+                            {
+                                actor->SetPosition(Vector2(115 + (idx * 8), 23));
+                                break;
+                            }
+                        }
+
+                        RaftAnimal[0] = -1;
+                        rightAnimals[idx] = true;
+
+                        AddActor(new Raft(7, Vector2(84, 26)));
+                        break;
+                    }
+                }
+            }
+            else if (RaftAnimal[0] == 1)
+            {
+                for (int idx = 0; idx < 3; ++idx)
+                {
+                    if (!rightAnimals[idx + 3])
+                    {
+                        Chick* tempChickActor = nullptr;
+
+                        for (Actor* actor : actors)
+                        {
+                            tempChickActor = dynamic_cast<Chick*>(actor);
+                            if (tempChickActor != nullptr &&
+                                actor->GetPosition() == Vector2(84, 26))
+                            {
+                                actor->SetPosition(Vector2(115 + (idx * 8), 26));
+                                break;
+                            }
+                        }
+
+                        RaftAnimal[0] = -1;
+                        rightAnimals[idx + 3] = true;
+
+                        AddActor(new Raft(7, Vector2(84, 26)));
+                        break;
+                    }
+                }
+            }
+
+            if (RaftAnimal[1] == 0)
+            {
+                for (int idx = 0; idx < 3; ++idx)
+                {
+                    if (!rightAnimals[idx])
+                    {
+                        Wolf* tempWolfActor = nullptr;
+
+                        for (Actor* actor : actors)
+                        {
+                            tempWolfActor = dynamic_cast<Wolf*>(actor);
+                            if (tempWolfActor != nullptr &&
+                                actor->GetPosition() == Vector2(97, 26))
+                            {
+                                actor->SetPosition(Vector2(115 + (idx * 8), 23));
+                                break;
+                            }
+                        }
+
+                        RaftAnimal[1] = -1;
+                        rightAnimals[idx] = true;
+
+                        AddActor(new Raft(7, Vector2(97, 26)));
+                        break;
+                    }
+                }
+            }
+            else if (RaftAnimal[1] == 1)
+            {
+                for (int idx = 0; idx < 3; ++idx)
+                {
+                    if (!rightAnimals[idx + 3])
+                    {
+                        Chick* tempChickActor = nullptr;
+
+                        for (Actor* actor : actors)
+                        {
+                            tempChickActor = dynamic_cast<Chick*>(actor);
+                            if (tempChickActor != nullptr &&
+                                actor->GetPosition() == Vector2(97, 26))
+                            {
+                                actor->SetPosition(Vector2(115 + (idx * 8), 26));
+                                break;
+                            }
+                        }
+
+                        RaftAnimal[1] = -1;
+                        rightAnimals[idx + 3] = true;
+
+                        AddActor(new Raft(7, Vector2(97, 26)));
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    ProcessAddedAndDestroyedActor();
 }
 
 void GameplayLevel::Render()
