@@ -11,21 +11,24 @@ GameplayLevel::GameplayLevel()
     AddActor(new Text(puzzleString_04.c_str(), Vector2(4, 5)));
     AddActor(new Text(puzzleString_05.c_str(), Vector2(2, 7)));
 
-    A_Star_Solution();
+    A_Star_Solution(3, 3, true);
 
-    if(least_count == 0)
+    puzzle_least_count = least_count;
+    last_least_count = least_count;
+
+    if (puzzle_least_count == 0)
     {
-        AddActor(new Text(std::to_string(least_count).c_str(), Vector2(35, 7)));
+        AddActor(new Text(std::to_string(puzzle_least_count).c_str(), Vector2(35, 7)));
         AddActor(new Text("회", Vector2(36, 7)));
     }
-    else if (least_count == -1)
+    else if (puzzle_least_count == -1)
     {
         AddActor(new Text("무한대", Vector2(35, 7)));
     }
     else
     {
-        AddActor(new Text(std::to_string(least_count).c_str(), Vector2(35, 7)));
-        AddActor(new Text("회", Vector2(36 + (int)log10(least_count), 7)));
+        AddActor(new Text(std::to_string(puzzle_least_count).c_str(), Vector2(35, 7)));
+        AddActor(new Text("회", Vector2(36 + (int)log10(puzzle_least_count), 7)));
     }
 
     AddActor(new Text("COUNT:", Vector2(2, 12), Color::Red));
@@ -71,19 +74,29 @@ GameplayLevel::~GameplayLevel()
 
 void GameplayLevel::Update(float deltaTime)
 {
-    RESET:
     Super::Update(deltaTime);
 
     GetWindowRect(consoleWindow, &consoleRect);
 
-    if (isGameOver)
+    if (isWin || isGameOver)
     {
-        // Game Over logic
-        if (!isRenderedGameOverMessage)
+        if (isWin)
         {
-            AddActor(new Text("GAME OVER", Vector2(80, 12), Color::Red));
+            AddActor(new Text("YOU WIN!!", Vector2(80, 12), Color::Green));
         }
-        
+        else
+        {
+            // Game Over logic
+            if (!isRenderedGameOverMessage)
+            {
+                AddActor(new Text("GAME OVER", Vector2(80, 12), Color::Red));
+            }
+        }
+
+        isRenderedGameOverMessage = true;
+
+        ProcessAddedAndDestroyedActor();
+
         if (GetAsyncKeyState(VK_LBUTTON) & 1)
         {
             if (GetCursorPos(&mousePos))
@@ -105,8 +118,6 @@ void GameplayLevel::Update(float deltaTime)
                 }
             }
         }
-
-        isRenderedGameOverMessage = true;
     }
 
     else
@@ -747,6 +758,65 @@ void GameplayLevel::Update(float deltaTime)
                 movingIndex = 0;
                 isRaftMoving = false;
 
+                // Check IsBestMove
+                int tempRaftWolf = 0;
+                int tempRaftChick = 0;
+                for (int idx = 0; idx < 2; ++idx)
+                {
+                    if (RaftAnimal[idx] == 0)
+                    {
+                        ++tempRaftWolf;
+                    }
+                    else if (RaftAnimal[idx] == 1)
+                    {
+                        ++tempRaftChick;
+                    }
+                }
+
+                int currentLeftWolf = 0;
+                int currentLeftChick = 0;
+
+                for (int idx = 0; idx < 3; ++idx)
+                {
+                    if (leftAnimals[idx])
+                    {
+                        ++currentLeftWolf;
+                    }
+                    if (leftAnimals[idx + 3])
+                    {
+                        ++currentLeftChick;
+                    }
+                }
+
+                if (isRaftLeft)
+                {
+                    A_Star_Solution(currentLeftWolf + tempRaftWolf, currentLeftChick + tempRaftChick, isRaftLeft);
+                }
+                else
+                {
+                    A_Star_Solution(currentLeftWolf, currentLeftChick, isRaftLeft);
+                }
+
+                last_least_count = least_count;
+
+                if (isRaftLeft)
+                {
+                    A_Star_Solution(currentLeftWolf, currentLeftChick, !isRaftLeft);
+                }
+                else
+                {
+                    A_Star_Solution(currentLeftWolf + tempRaftWolf, currentLeftChick + tempRaftChick, !isRaftLeft);
+                }
+
+                if (last_least_count == least_count + 1)
+                {
+                    AddActor(new Text("V", Vector2((2 + (count - 1) * 2), 14), Color::Green));
+                }
+                else
+                {
+                    AddActor(new Text("X", Vector2((2 + (count - 1) * 2), 14), Color::White));
+                }
+
                 // Unload animals
                 if (RaftAnimal[0] == 0)
                 {
@@ -983,6 +1053,11 @@ void GameplayLevel::Update(float deltaTime)
                     }
                 }
 
+                if (wolvesCount == 0 && chicksCount == 0)
+                {
+                    isWin = true;
+                }
+
                 if (wolvesCount > chicksCount && chicksCount != 0)
                 {
                     Chick* tempChickActor = nullptr;
@@ -1098,6 +1173,26 @@ void GameplayLevel::ResetGame()
     AddActor(new Text(puzzleString_04.c_str(), Vector2(4, 5)));
     AddActor(new Text(puzzleString_05.c_str(), Vector2(2, 7)));
 
+    A_Star_Solution(3, 3, true);
+
+    puzzle_least_count = least_count;
+    last_least_count = least_count;
+
+    if (puzzle_least_count == 0)
+    {
+        AddActor(new Text(std::to_string(puzzle_least_count).c_str(), Vector2(35, 7)));
+        AddActor(new Text("회", Vector2(36, 7)));
+    }
+    else if (puzzle_least_count == -1)
+    {
+        AddActor(new Text("무한대", Vector2(35, 7)));
+    }
+    else
+    {
+        AddActor(new Text(std::to_string(puzzle_least_count).c_str(), Vector2(35, 7)));
+        AddActor(new Text("회", Vector2(36 + (int)log10(puzzle_least_count), 7)));
+    }
+
     AddActor(new Text("COUNT:", Vector2(2, 12), Color::Red));
     countText = new Text("0", Vector2(9, 12), Color::Red);
     AddActor(countText);
@@ -1133,6 +1228,7 @@ void GameplayLevel::ResetGame()
     }
 
     isGameOver = false;
+    isWin = false;
     isRaftLeft = true;
     count = 0;
     for (int idx = 0; idx < 6; ++idx)
@@ -1145,18 +1241,20 @@ void GameplayLevel::ResetGame()
         RaftAnimal[idx] = -1;
     }
 
+    isRenderedGameOverMessage = false;
+    
     ProcessAddedAndDestroyedActor();
 }
 
 // Function using the A-star algorithm to find the optimal movement history and number of movements
-void GameplayLevel::A_Star_Solution()
+void GameplayLevel::A_Star_Solution(int currentWolf, int currentChick, bool isCurrentRaftLeft)
 {
     std::priority_queue<State, std::vector<State>, std::greater<State>> pq;
     std::set<std::tuple<int, int, char>> visited;
-
-    // Start state
-    State start = { 3, 3, true, 0, {} };
     
+    // Start state
+    State start = { currentWolf, currentChick, isCurrentRaftLeft, 0, {} };
+
     // Target state
     State target = { 0, 0, false, 0, {} };
 
