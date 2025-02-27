@@ -1250,7 +1250,7 @@ void GameplayLevel::ResetGame()
 void GameplayLevel::A_Star_Solution(int currentWolf, int currentChick, bool isCurrentRaftLeft)
 {
     std::priority_queue<State, std::vector<State>, std::greater<State>> pq;
-    std::set<std::tuple<int, int, char>> visited;
+    std::set<std::tuple<int, int, bool>> visited;
     
     // Start state
     State start = { currentWolf, currentChick, isCurrentRaftLeft, 0, {} };
