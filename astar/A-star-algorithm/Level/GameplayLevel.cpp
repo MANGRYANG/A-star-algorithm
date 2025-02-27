@@ -1289,7 +1289,7 @@ void GameplayLevel::A_Star_Solution(int currentWolf, int currentChick, bool isCu
             int newChick = current.isRaftLeft ? (current.chick - move.second) : (current.chick + move.second);
             bool newRaft = !current.isRaftLeft;
 
-            if (newWolf >= 0 && newWolf <= 3 && newChick >= 0 && newChick <= 3 && isValidState(newWolf, newChick)) {
+            if (isValidState(newWolf, newChick)) {
                 State next = { newWolf, newChick, newRaft, current.cost + 1, current.move_history };
                 next.move_history.push_back(move);
                 pq.push(next);
@@ -1318,6 +1318,12 @@ bool GameplayLevel::isValidState(int wolf, int chick) {
 
     // Case where the number of wolves left on the right side is greater than the number of chicks left on the same side
     if ((3 - wolf) > (3 - chick) && (3 - chick) > 0) 
+    {
+        return false;
+    }
+
+    // Check if our movement was appropriate
+    if (wolf < 0 || wolf > 3 || chick < 0 || chick > 3)
     {
         return false;
     }
